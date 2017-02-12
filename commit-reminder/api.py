@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from flask import Flask
+from flask import Flask, jsonify
+from flask_api import FlaskAPI
 
 app = Flask(__name__)
 
 @app.route('/<string:name>')
 def sayHello(name):
     resp = "Hello %s !" % name
-    return resp
+    return jsonify(resp=resp)
 
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
