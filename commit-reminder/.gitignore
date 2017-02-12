@@ -1,6 +1,10 @@
+# Virtualenv
 bin/
 include/
 lib/
 .Python
 pip-selfcheck.json
-*.pyc
+*.py[cod]
+
+# Mac OS X custom attribute files
+.DS_Store
