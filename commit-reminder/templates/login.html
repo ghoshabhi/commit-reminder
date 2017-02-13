@@ -1,0 +1,15 @@
+<button class="github">Sign in with Github (redirect)</button><br>
+
+<script src="https://cdn.auth0.com/w2/auth0-7.1.min.js"></script>
+<script src="http://code.jquery.com/jquery.js"></script>
+<script>
+  var auth0 = new Auth0({
+    domain:         'ghoshabhi.auth0.com',
+    clientID:       'Loz6vT3OWA0xt6smDzJ8oVprZwcwIwGA',
+    callbackURL:    'https://localhost:5000/callback'
+  });
+  // sign-in with social provider with plain redirect
+  $('.github').on('click', function() {
+    auth0.signin({connection: 'github'}); // use connection identifier
+  });
+</script>
