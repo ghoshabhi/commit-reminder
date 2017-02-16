@@ -1,15 +1,28 @@
-<button class="github">Sign in with Github (redirect)</button><br>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style rel="stylesheet">
+  body {
+    padding: 15px;
+    flex: auto;
+  }
+</style>
 
-<script src="https://cdn.auth0.com/w2/auth0-7.1.min.js"></script>
+<a class="waves-effect waves-light btn github">
+ <i class="material-icons">done</i>
+ Sign Up!
+</a>
+
+
 <script src="http://code.jquery.com/jquery.js"></script>
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
 <script>
-  var auth0 = new Auth0({
-    domain:         'ghoshabhi.auth0.com',
-    clientID:       'Loz6vT3OWA0xt6smDzJ8oVprZwcwIwGA',
-    callbackURL:    'https://localhost:5000/callback'
-  });
-  // sign-in with social provider with plain redirect
-  $('.github').on('click', function() {
-    auth0.signin({connection: 'github'}); // use connection identifier
-  });
+  const githubButton = document.getElementsByClassName('github');
+  $('.github').on('click', function (e) {
+    const state = '{{state}}';
+    const fetch_url = `https://github.com/login/oauth/authorize?client_id=98ca770e0005bde3fb7f&state=${state}&scope=user%20repo%20public_repo&allow_signup=true`;
+    window.open(fetch_url);
+  })
 </script>
