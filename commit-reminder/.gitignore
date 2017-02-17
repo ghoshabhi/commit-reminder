@@ -8,3 +8,6 @@ pip-selfcheck.json
 
 # Mac OS X custom attribute files
 .DS_Store
+
+# credentials file
+credentials.py

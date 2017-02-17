@@ -1,65 +1,66 @@
-from requests_oauthlib import OAuth2Session
-from flask import Flask, request, redirect, session, url_for
-from flask.json import jsonify
-import os
+#!/usr/bin/env python
+import requests
+from flask import Flask, request, jsonify, redirect, \
+                 render_template, send_from_directory
+from flask import session as login_session
+from flask import make_response
+import json
+import requests
+import random
+import string
+from credentials import client_id, client_secret
+
+from flask_api import FlaskAPI
 
 app = Flask(__name__)
 
-
-# This information is obtained upon registration of a new GitHub
-client_id = "98ca770e0005bde3fb7f"
-client_secret = "35d716e82e3b03a8473ea93c70a5a8fa55d11a59"
 authorization_base_url = 'https://github.com/login/oauth/authorize'
 token_url = 'https://github.com/login/oauth/access_token'
 
-
-@app.route("/")
-def demo():
-    """Step 1: User Authorization.
-    Redirect the user/resource owner to the OAuth provider (i.e. Github)
-    using an URL with a few key OAuth parameters.
-    """
-    github = OAuth2Session(client_id)
-    authorization_url, state = github.authorization_url(authorization_base_url)
-
-    # State is used to prevent CSRF, keep this for later.
-    session['oauth_state'] = state
-    return redirect(authorization_url)
-
-
-# Step 2: User authorization, this happens on the provider.
-
-@app.route("/callback", methods=["GET"])
-def callback():
-    """ Step 3: Retrieving an access token.
-    The user has been redirected back from the provider to your registered
-    callback URL. With this redirection comes an authorization code included
-    in the redirect URL. We will use that to obtain an access token.
-    """
-
-    github = OAuth2Session(client_id, state=session['oauth_state'])
-    token = github.fetch_token(token_url, client_secret=client_secret,
-                               authorization_response=request.url)
-
-    # At this point you can fetch protected resources but lets save
-    # the token and show how this is done from a persisted token
-    # in /profile.
-    session['oauth_token'] = token
-
-    return redirect(url_for('.profile'))
+@app.route('/handleLogin', methods=["GET"])
+def handleLogin():
+    if login_session['state'] == request.args.get('state'):
+        print login_session['state']
+        fetch_url = authorization_base_url + \
+                    '?client_id=' + client_id + \
+                    '&state=' + login_session['state'] + \
+                    '&scope=user%20repo%20public_repo' + \
+                    '&allow_signup=true'
+        print fetch_url
+        return redirect(fetch_url)
+    else:
+        return jsonify(invalid_state_token="invalid_state_token")
 
 
-@app.route("/profile", methods=["GET"])
-def profile():
-    """Fetching a protected resource using an OAuth 2 token.
-    """
-    github = OAuth2Session(client_id, token=session['oauth_token'])
-    return jsonify(github.get('https://api.github.com/user').json())
+@app.route('/')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for x in xrange(32))
+    login_session['state'] = state
+    return render_template('login.html', state=state)
+
+# Using the /callback route to handle authentication.
+@app.route('/callback', methods=['GET', 'POST'])
+def callback_handling():
+    print "Hi AJAX!"
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps('Invalid state parameter!'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    if 'code' in request.args:
+        return jsonify(code=request.args.get('code'))
+    else:
+        return jsonify(error="404_no_code")
+
+
+@app.route('/hello')
+def sayHello():
+    return jsonify(resp="Welcome!")
+
 
 
 if __name__ == "__main__":
-    # This allows us to use a plain HTTP callback
-    os.environ['DEBUG'] = "1"
-
-    app.secret_key = os.urandom(24)
-    app.run(debug=True)
+    app.secret_key = "fart_fart"
+    app.debug = True
+    app.run()

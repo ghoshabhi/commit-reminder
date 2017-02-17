@@ -6,7 +6,7 @@
   }
 </style>
 
-<a href='/handleLogin' class="waves-effect waves-light btn github">
+<a href='/handleLogin?state={{state}}' class="waves-effect waves-light btn github">
  <i class="material-icons">done</i>
  Sign Up!
 </a>
@@ -18,47 +18,3 @@
 
 <!-- Compiled and minified JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-<!-- <script>
-  $('.github').on('click', function (e) {
-    var xmlHttp = new XMLHttpRequest();
-    const state = '{{state}}';
-    const fetch_url = `https://github.com/login/oauth/authorize?client_id=98ca770e0005bde3fb7f&state=${state}&scope=user%20repo%20public_repo&allow_signup=true?callback=callback_handling`;
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", fetch_url, true); // true for asynchronous
-    xmlHttp.send(null);
-  });
-</script> -->
-<!-- <script>
-  $('.github').on('click', function (e) {
-    const state = '{{state}}';
-    const fetch_url = `https://github.com/login/oauth/authorize?client_id=98ca770e0005bde3fb7f&state=${state}&scope=user%20repo%20public_repo&allow_signup=true`;
-    window.open(fetch_url);
-  })
-</script> -->
-<!-- <script>
-  const githubButton = document.getElementsByClassName('github');
-  $('.github').on('click', function (e) {
-    const state = '{{state}}';
-    var myHeaders = new Headers();
-
-    var myInit = { method: 'GET',
-                   headers: myHeaders,
-                   mode: 'no-cors',
-                   cache: 'default' };
-    const fetch_url = `https://github.com/login/oauth/authorize?client_id=98ca770e0005bde3fb7f&state=${state}&scope=user%20repo%20public_repo&allow_signup=true`;
-    fetch(fetch_url, myInit)
-    .then(function(response){
-      console.log(1);
-      console.log(response.body);
-    }).then(function(data) {
-      console.log(2);
-      console.log(data);
-    }).catch(function(err){
-      console.log(3);
-      console.log(err);
-    });
-  });
-</script> -->
