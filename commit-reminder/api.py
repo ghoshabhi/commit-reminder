@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import requests
 from flask import Flask, request, jsonify, redirect, \
-                 render_template, send_from_directory
+                 render_template, send_from_directory, url_for
 from flask import session as login_session
 from flask import make_response
 import json
@@ -49,10 +49,50 @@ def callback_handling():
         return response
 
     if 'code' in request.args:
-        return jsonify(code=request.args.get('code'))
+        #return jsonify(code=request.args.get('code'))
+        payload = {
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'code': request.args['code']
+        }
+        headers = {'Accept': 'application/json'}
+        req = requests.post(token_url, params=payload, headers=headers)
+        resp = req.json()
+
+        if 'access_token' in resp:
+            #return jsonify(access_token=resp['access_token'])
+            login_session['access_token'] = resp['access_token']
+            return redirect(url_for('index'))
+        else:
+            return jsonify(error="Github didn't return access_token")
     else:
         return jsonify(error="404_no_code")
 
+@app.route('/index')
+def index():
+    # authenticated?
+    if not 'access_token' in login_session:
+        return 'Never trust strangers', 404
+    # get username from github api
+    url = 'https://api.github.com/user?access_token={}'
+    r = requests.get(url.format(login_session['access_token']))
+    try:
+        resp = r.json()
+        gh_profile = resp['html_url']
+        username = resp['login']
+        avatar_url = resp['avatar_url']
+        bio = resp['bio']
+        name = resp['name']
+        return render_template("profile.html",
+                                name=name,
+                                avatar_url=avatar_url,
+                                username=username,
+                                bio=bio,
+                                gh_profile=gh_profile)
+    except AttributeError:
+        app.logger.debug('error getting username from github, whoops')
+        return "I don't know who you are; I should, but regretfully I don't", 500
+    # return 'Hello {}!'.format(login), 200
 
 @app.route('/hello')
 def sayHello():
