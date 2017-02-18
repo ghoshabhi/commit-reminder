@@ -1,0 +1,18 @@
+{% extends "master.html" %}
+{% block content %}
+<div class="row">
+  {% for repo in repo_info %}
+  <div class="col s12 m6">
+    <div class="card blue-grey darken-1">
+      <div class="card-content white-text">
+        <span class="card-title">{{repo['repo_name']}}</span>
+        <p>{{repo['description']}}</p>
+      </div>
+      <div class="card-action">
+        <a target="_blank" href="{{repo['repo_link']}}">Repo Link</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -99,7 +99,7 @@ def index():
 def sayHello():
     return jsonify(resp="Welcome!")
 
-@app.route('/getReposByUsername/<string:username>')
+@app.route('/user/<string:username>')
 def getRepos(username):
     if not 'access_token' in login_session:
         invalid_access_token="Access token has expired or not in session"
@@ -114,9 +114,19 @@ def getRepos(username):
     resp = req.json()
     try:
         app.logger.debug("Try to get repository names from response")
-        repo_names = [repo['full_name'] for repo in resp]
-        app.logger.debug("Successfully fetched repository names from response")
-        return jsonify(repo_names=repo_names)
+        repo_info = []
+        for each_repo in resp:
+            repo_dict = {}
+            repo_dict['repo_name'] = each_repo['full_name']
+            repo_dict['repo_link'] = each_repo['html_url']
+            repo_dict['description'] = each_repo['description']
+            repo_dict['owner_fullname'] = each_repo['owner']['login']
+            repo_dict['html_url'] = each_repo['html_url']
+            repo_info.append(repo_dict)
+        app.logger.debug("Successfully fetched repository info from response")
+        #return jsonify(repo_info)
+        #print json.dumps(repo_info)
+        return render_template("repo.html", repo_info=repo_info)
     except (TypeError, AttributeError, KeyError), e:
         app.logger.error(e)
         return jsonify(no_user_found="no user found")
