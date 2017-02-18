@@ -16,6 +16,7 @@ app = Flask(__name__)
 
 authorization_base_url = 'https://github.com/login/oauth/authorize'
 token_url = 'https://github.com/login/oauth/access_token'
+request_url = 'https://api.github.com'
 
 @app.route('/handleLogin', methods=["GET"])
 def handleLogin():
@@ -98,6 +99,27 @@ def index():
 def sayHello():
     return jsonify(resp="Welcome!")
 
+@app.route('/getReposByUsername/<string:username>')
+def getRepos(username):
+    if not 'access_token' in login_session:
+        invalid_access_token="Access token has expired or not in session"
+        app.logger.error(invalid_access_token)
+        return jsonify(invalid_access_token=invalid_access_token)
+    if not username:
+        return jsonify(username_not_give="Github username needed to fetch \
+                                         repos")
+    url = request_url + '/users/{username}/repos'.format(username=username)
+    headers = {'Accept': 'application/json'}
+    req = requests.get(url, headers=headers)
+    resp = req.json()
+    try:
+        app.logger.debug("Try to get repository names from response")
+        repo_names = [repo['full_name'] for repo in resp]
+        app.logger.debug("Successfully fetched repository names from response")
+        return jsonify(repo_names=repo_names)
+    except (TypeError, AttributeError, KeyError), e:
+        app.logger.error(e)
+        return jsonify(no_user_found="no user found")
 
 
 if __name__ == "__main__":
