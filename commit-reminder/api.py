@@ -131,6 +131,34 @@ def getRepos(username):
         app.logger.error(e)
         return jsonify(no_user_found="no user found")
 
+@app.route('/user/<string:username>/<string:repo_name>/commits')
+def getCommits(username, repo_name):
+    if not 'access_token' in login_session:
+        invalid_access_token="Access token has expired or not in session"
+        app.logger.error(invalid_access_token)
+        return jsonify(invalid_access_token=invalid_access_token)
+    if not username and not repo_name:
+        return jsonify(username_not_give="Github username or repo_name missing")
+    url = request_url + '/repos/{username}/{repo_name}/commits'\
+          .format(username=username, repo_name=repo_name)
+    headers = {'Accept': 'application/json'}
+    res = requests.get(url, headers=headers)
+    commits = res.json()
+    try:
+        app.logger.info("Try to get commits information inside getCommits")
+        commit_info = []
+        for commit in commits:
+            commit_dict = {}
+            commit_dict['commit_author'] = commit['commit']['author']['name']
+            commit_dict['commit_date'] = commit['commit']['author']['date']
+            commit_dict['commit_msg'] = commit['commit']['message']
+            commit_info.append(commit_dict)
+        app.logger.info("Commit info retrieval successfull")
+        return jsonify(commits=commit_info)
+    except (TypeError, AttributeError, KeyError), e:
+        app.logger.error(e)
+        return jsonify(error=e)
+    #return jsonify(commits=commits)
 
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
