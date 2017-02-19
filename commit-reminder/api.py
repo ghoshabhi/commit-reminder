@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, redirect, \
                  render_template, send_from_directory, url_for
 from flask import session as login_session
 from flask import make_response
+from flask_cors import CORS, cross_origin
 import json
 import requests
 import random
@@ -13,6 +14,7 @@ from credentials import client_id, client_secret
 from flask_api import FlaskAPI
 
 app = Flask(__name__)
+CORS(app)
 
 authorization_base_url = 'https://github.com/login/oauth/authorize'
 token_url = 'https://github.com/login/oauth/access_token'
@@ -101,10 +103,10 @@ def sayHello():
 
 @app.route('/user/<string:username>')
 def getRepos(username):
-    if not 'access_token' in login_session:
-        invalid_access_token="Access token has expired or not in session"
-        app.logger.error(invalid_access_token)
-        return jsonify(invalid_access_token=invalid_access_token)
+    # if not 'access_token' in login_session:
+    #     invalid_access_token="Access token has expired or not in session"
+    #     app.logger.error(invalid_access_token)
+    #     return jsonify(invalid_access_token=invalid_access_token)
     if not username:
         return jsonify(username_not_give="Github username needed to fetch \
                                          repos")
@@ -124,12 +126,13 @@ def getRepos(username):
             repo_dict['html_url'] = each_repo['html_url']
             repo_info.append(repo_dict)
         app.logger.debug("Successfully fetched repository info from response")
-        #return jsonify(repo_info)
+        #print json.dump(repo_info)
+        return jsonify(repo_info)
         #print json.dumps(repo_info)
-        return render_template("repo.html", repo_info=repo_info)
+        #return render_template("repo.html", repo_info=repo_info)
     except (TypeError, AttributeError, KeyError), e:
         app.logger.error(e)
-        return jsonify(no_user_found="no user found")
+        return jsonify(no_user_found="no user found"), 404
 
 @app.route('/user/<string:username>/<string:repo_name>/commits')
 def getCommits(username, repo_name):
