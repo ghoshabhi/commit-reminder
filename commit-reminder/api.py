@@ -74,11 +74,11 @@ def callback_handling():
 @app.route('/index')
 def index():
     # authenticated?
-    if not 'access_token' in login_session:
+    if 'access_token' not in login_session:
         return 'Never trust strangers', 404
     # get username from github api
-    url = 'https://api.github.com/user?access_token={}'
-    r = requests.get(url.format(login_session['access_token']))
+    access_token_url = 'https://api.github.com/user?access_token={}'
+    r = requests.get(access_token_url.format(login_session['access_token']))
     try:
         resp = r.json()
         gh_profile = resp['html_url']
@@ -99,40 +99,49 @@ def index():
 
 @app.route('/hello')
 def sayHello():
-    return jsonify(resp="Welcome!")
+    return jsonify(resp="Welcome!"), 200
 
 @app.route('/user/<string:username>')
 def getRepos(username):
-    # if not 'access_token' in login_session:
-    #     invalid_access_token="Access token has expired or not in session"
-    #     app.logger.error(invalid_access_token)
-    #     return jsonify(invalid_access_token=invalid_access_token)
+    if not 'access_token' in login_session:
+        invalid_access_token="Access token has expired or not in session"
+        app.logger.error(invalid_access_token)
+        return jsonify(invalid_access_token=invalid_access_token)
     if not username:
         return jsonify(username_not_give="Github username needed to fetch \
                                          repos")
-    url = request_url + '/users/{username}/repos'.format(username=username)
+    url = request_url + '/users/{username}/repos?per_page=500'.format(username=username)
     headers = {'Accept': 'application/json'}
     req = requests.get(url, headers=headers)
-    resp = req.json()
-    try:
-        app.logger.debug("Try to get repository names from response")
-        repo_info = []
-        for each_repo in resp:
-            repo_dict = {}
-            repo_dict['repo_name'] = each_repo['full_name']
-            repo_dict['repo_link'] = each_repo['html_url']
-            repo_dict['description'] = each_repo['description']
-            repo_dict['owner_fullname'] = each_repo['owner']['login']
-            repo_dict['html_url'] = each_repo['html_url']
-            repo_info.append(repo_dict)
-        app.logger.debug("Successfully fetched repository info from response")
-        #print json.dump(repo_info)
-        return jsonify(repo_info)
-        #print json.dumps(repo_info)
-        #return render_template("repo.html", repo_info=repo_info)
-    except (TypeError, AttributeError, KeyError), e:
-        app.logger.error(e)
-        return jsonify(no_user_found="no user found"), 404
+
+    if req.status_code == 200:
+        resp = req.json()
+
+        try:
+            app.logger.debug("Try to get repository names from response")
+            repo_info = []
+            for each_repo in resp:
+                repo_dict = {}
+                repo_dict['repo_name'] = each_repo['full_name']
+                repo_dict['repo_link'] = each_repo['html_url']
+                repo_dict['description'] = each_repo['description']
+                repo_dict['owner_fullname'] = each_repo['owner']['login']
+                repo_dict['html_url'] = each_repo['html_url']
+                repo_info.append(repo_dict)
+            app.logger.debug("Successfully fetched repository info from response")
+            return jsonify(
+                my_name="Abhishek Ghosh",
+                repo_count=len(repo_info),
+                repo_info=repo_info
+            ), 200
+            #print json.dumps(repo_info)
+            #return render_template("repo.html", repo_info=repo_info)
+        except (TypeError, AttributeError, KeyError), e:
+            app.logger.error(e)
+            return jsonify(no_user_found="no user found"), 404
+    else:
+        res = req.json()['message']
+        return jsonify(error=res)
 
 @app.route('/user/<string:username>/<string:repo_name>/commits')
 def getCommits(username, repo_name):
