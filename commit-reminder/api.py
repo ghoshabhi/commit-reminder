@@ -115,7 +115,7 @@ def getRepos(username):
     try:
         req = requests.get(url, headers=headers, timeout=4)
     except (requests.exceptions.Timeout), e:
-        return jsonify("connection timed out")
+        return jsonify("connection timed out"), 500
 
     if req.status_code == 200:
         resp = req.json()
@@ -152,12 +152,19 @@ def getCommits(username, repo_name):
         invalid_access_token="Access token has expired or not in session"
         app.logger.error(invalid_access_token)
         return jsonify(invalid_access_token=invalid_access_token)
+
     if not username and not repo_name:
         return jsonify(username_not_give="Github username or repo_name missing")
-    url = request_url + '/repos/{username}/{repo_name}/commits'\
+
+    url = request_url + '/repos/{username}/{repo_name}/commits?per_page=500'\
           .format(username=username, repo_name=repo_name)
+
     headers = {'Accept': 'application/json'}
-    res = requests.get(url, headers=headers)
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+    except (requests.exceptions.Timeout), e:
+        return jsonify("connection timed out"), 500
+
     commits = res.json()
     try:
         app.logger.info("Try to get commits information inside getCommits")
@@ -172,8 +179,7 @@ def getCommits(username, repo_name):
         return jsonify(commits=commit_info)
     except (TypeError, AttributeError, KeyError), e:
         app.logger.error(e)
-        return jsonify(error=e)
-    #return jsonify(commits=commits)
+        return jsonify(error=e.message)
 
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
