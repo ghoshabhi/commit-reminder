@@ -112,7 +112,10 @@ def getRepos(username):
                                          repos")
     url = request_url + '/users/{username}/repos?per_page=500'.format(username=username)
     headers = {'Accept': 'application/json'}
-    req = requests.get(url, headers=headers)
+    try:
+        req = requests.get(url, headers=headers, timeout=4)
+    except (requests.exceptions.Timeout), e:
+        return jsonify("connection timed out")
 
     if req.status_code == 200:
         resp = req.json()
