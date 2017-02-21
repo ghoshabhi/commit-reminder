@@ -63,7 +63,6 @@ def callback_handling():
         resp = req.json()
 
         if 'access_token' in resp:
-            #return jsonify(access_token=resp['access_token'])
             login_session['access_token'] = resp['access_token']
             return redirect(url_for('index'))
         else:
@@ -76,7 +75,7 @@ def index():
     # authenticated?
     if 'access_token' not in login_session:
         return 'Never trust strangers', 404
-    # get username from github api
+    # get user info from github api
     access_token_url = 'https://api.github.com/user?access_token={}'
     r = requests.get(access_token_url.format(login_session['access_token']))
     try:
@@ -97,9 +96,9 @@ def index():
         return "I don't know who you are; I should, but regretfully I don't", 500
     # return 'Hello {}!'.format(login), 200
 
-@app.route('/hello')
-def sayHello():
-    return jsonify(resp="Welcome!"), 200
+@app.route('/hello/<string:name>')
+def sayHello(name):
+    return jsonify(resp="Welcome, {0}!".format(name)), 200
 
 @app.route('/user/<string:username>')
 def getRepos(username):
