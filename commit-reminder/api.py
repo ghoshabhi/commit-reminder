@@ -11,8 +11,6 @@ import random
 import string
 from credentials import client_id, client_secret
 
-from flask_api import FlaskAPI
-
 app = Flask(__name__)
 CORS(app)
 
@@ -183,4 +181,4 @@ def getCommits(username, repo_name):
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

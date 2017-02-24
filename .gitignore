@@ -1,0 +1,14 @@
+redis-stable.tar.gz
+/redis-stable
+/.vagrant
+ubuntu-xenial-16.04-cloudimg-console.log
+# Virtualenv
+bin/
+include/
+lib/
+.Python
+pip-selfcheck.json
+*.py[cod]
+
+# Mac OS X custom attribute files
+.DS_Store
