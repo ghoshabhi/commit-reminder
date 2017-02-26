@@ -20,8 +20,11 @@ request_url = 'https://api.github.com'
 
 @app.route('/handleLogin', methods=["GET"])
 def handleLogin():
+    print "handleLogin"
+    print "login_session[state] " + login_session['state']
+    print "request of state " + request.args.get('state')
     if login_session['state'] == request.args.get('state'):
-        print login_session['state']
+        print "handleLogin - Login Session" + login_session['state']
         fetch_url = authorization_base_url + \
                     '?client_id=' + client_id + \
                     '&state=' + login_session['state'] + \
@@ -35,9 +38,11 @@ def handleLogin():
 
 @app.route('/')
 def showLogin():
+    print "showLogin"
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
+    print "Login Session " + login_session['state']
     return render_template('login.html', state=state)
 
 # Using the /callback route to handle authentication.
@@ -181,4 +186,10 @@ def getCommits(username, repo_name):
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
     app.debug = True
+<<<<<<< Updated upstream
     app.run(host='0.0.0.0', port=5000)
+||||||| merged common ancestors
+    app.run()
+=======
+    app.run(host='0.0.0.0', port=8080)
+>>>>>>> Stashed changes
