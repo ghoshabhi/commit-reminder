@@ -186,10 +186,4 @@ def getCommits(username, repo_name):
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
     app.debug = True
-<<<<<<< Updated upstream
     app.run(host='0.0.0.0', port=5000)
-||||||| merged common ancestors
-    app.run()
-=======
-    app.run(host='0.0.0.0', port=8080)
->>>>>>> Stashed changes
