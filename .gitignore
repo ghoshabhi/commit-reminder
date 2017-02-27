@@ -12,3 +12,5 @@ pip-selfcheck.json
 
 # Mac OS X custom attribute files
 .DS_Store
+
+ubuntu-xenial-16.04-cloudimg-console.log
