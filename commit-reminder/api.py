@@ -1,14 +1,13 @@
 #!/usr/bin/env python
+import random
+import json
+import string
 import requests
 from flask import Flask, request, jsonify, redirect, \
-                 render_template, send_from_directory, url_for
+                 render_template, url_for
 from flask import session as login_session
 from flask import make_response
-from flask_cors import CORS, cross_origin
-import json
-import requests
-import random
-import string
+from flask_cors import CORS
 from credentials import client_id, client_secret
 
 app = Flask(__name__)
@@ -89,11 +88,11 @@ def index():
         bio = resp['bio']
         name = resp['name']
         return render_template("profile.html",
-                                name=name,
-                                avatar_url=avatar_url,
-                                username=username,
-                                bio=bio,
-                                gh_profile=gh_profile)
+                               name=name,
+                               avatar_url=avatar_url,
+                               username=username,
+                               bio=bio,
+                               gh_profile=gh_profile)
     except AttributeError:
         app.logger.debug('error getting username from github, whoops')
         return "I don't know who you are; I should, but regretfully I don't", 500
