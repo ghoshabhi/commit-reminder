@@ -19,6 +19,7 @@ request_url = 'https://api.github.com'
 
 @app.route('/handleLogin', methods=["GET"])
 def handleLogin():
+    '''Intermediate helper method to attach extra information to Github API'''
     print "handleLogin"
     print "login_session[state] " + login_session['state']
     print "request of state " + request.args.get('state')
@@ -37,6 +38,7 @@ def handleLogin():
 
 @app.route('/')
 def showLogin():
+    '''Root page handler'''
     print "showLogin"
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
@@ -44,10 +46,10 @@ def showLogin():
     print "Login Session " + login_session['state']
     return render_template('login.html', state=state)
 
-# Using the /callback route to handle authentication.
+
 @app.route('/callback', methods=['GET', 'POST'])
 def callback_handling():
-    print "Hi AJAX!"
+    '''Callback Handler for Github OAuth'''
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter!'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -74,10 +76,10 @@ def callback_handling():
 
 @app.route('/index')
 def index():
-    # authenticated?
+    '''User information page'''
     if 'access_token' not in login_session:
         return 'Never trust strangers', 404
-    # get user info from github api
+
     access_token_url = 'https://api.github.com/user?access_token={}'
     r = requests.get(access_token_url.format(login_session['access_token']))
     try:
@@ -96,14 +98,16 @@ def index():
     except AttributeError:
         app.logger.debug('error getting username from github, whoops')
         return "I don't know who you are; I should, but regretfully I don't", 500
-    # return 'Hello {}!'.format(login), 200
+
 
 @app.route('/hello/<string:name>')
 def sayHello(name):
+    '''Test Route'''
     return jsonify(resp="Welcome, {0}!".format(name)), 200
 
 @app.route('/user/<string:username>')
 def getRepos(username):
+    '''Fetch repositories by Username'''
     if not 'access_token' in login_session:
         invalid_access_token="Access token has expired or not in session"
         app.logger.error(invalid_access_token)
@@ -149,6 +153,7 @@ def getRepos(username):
 
 @app.route('/user/<string:username>/<string:repo_name>/commits')
 def getCommits(username, repo_name):
+    '''Get commits by username and repository name'''
     if not 'access_token' in login_session:
         invalid_access_token="Access token has expired or not in session"
         app.logger.error(invalid_access_token)
@@ -181,6 +186,7 @@ def getCommits(username, repo_name):
     except (TypeError, AttributeError, KeyError), e:
         app.logger.error(e)
         return jsonify(error=e.message)
+
 
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
