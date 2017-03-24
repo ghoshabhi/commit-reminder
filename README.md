@@ -1,2 +1,3 @@
 # Commit-Reminder
-Simple app to remind users to commit!
+Simple app to remind users to commit! MVP coming soon.
+
