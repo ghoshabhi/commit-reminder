@@ -1,1 +1,1 @@
-web: python ./commitreminder/api.py
+web: python ./commit-reminder/api.py
