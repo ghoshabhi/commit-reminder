@@ -7,11 +7,11 @@ from flask import Flask, request, jsonify, redirect, \
                  render_template, url_for
 from flask import session as login_session
 from flask import make_response
-from flask_cors import CORS
+#from flask_cors import CORS
 from credentials import client_id, client_secret
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 authorization_base_url = 'https://github.com/login/oauth/authorize'
 token_url = 'https://github.com/login/oauth/access_token'
