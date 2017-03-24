@@ -13,4 +13,4 @@ pip-selfcheck.json
 # Mac OS X custom attribute files
 .DS_Store
 
-/commit-reminder/credentials.py
+#/commit-reminder/credentials.py
