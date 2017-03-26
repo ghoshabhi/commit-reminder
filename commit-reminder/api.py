@@ -112,7 +112,7 @@ def getRepos(username):
     if not 'access_token' in login_session:
         invalid_access_token="Access token has expired or not in session"
         app.logger.error(invalid_access_token)
-        return jsonify(invalid_access_token=invalid_access_token)
+        return jsonify(invalid_access_token=invalid_access_token), 500
     if not username:
         return jsonify(username_not_give="Github username needed to fetch \
                                          repos")
