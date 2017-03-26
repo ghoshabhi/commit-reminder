@@ -3,6 +3,7 @@ import random
 import json
 import string
 import requests
+import os
 from flask import Flask, request, jsonify, redirect, \
                  render_template, url_for
 from flask import session as login_session
@@ -191,7 +192,7 @@ def getCommits(username, repo_name):
 if __name__ == "__main__":
     app.secret_key = "fart_fart"
     app.debug = True
-    port = int(os.environ.get("PORT", 33507))
+    port = int(os.environ.get("PORT", 5000))
     app.run(
         host='0.0.0.0',
         port=port
