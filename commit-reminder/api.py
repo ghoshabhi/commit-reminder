@@ -21,17 +21,12 @@ request_url = 'https://api.github.com'
 @app.route('/handleLogin', methods=["GET"])
 def handleLogin():
     '''Intermediate helper method to attach extra information to Github API'''
-    print "handleLogin"
-    print "login_session[state] " + login_session['state']
-    print "request of state " + request.args.get('state')
     if login_session['state'] == request.args.get('state'):
-        print "handleLogin - Login Session" + login_session['state']
         fetch_url = authorization_base_url + \
                     '?client_id=' + client_id + \
                     '&state=' + login_session['state'] + \
                     '&scope=user%20repo%20public_repo' + \
                     '&allow_signup=true'
-        print fetch_url
         return redirect(fetch_url)
     else:
         return jsonify(invalid_state_token="invalid_state_token")
@@ -40,11 +35,15 @@ def handleLogin():
 @app.route('/')
 def showLogin():
     '''Root page handler'''
-    print "showLogin"
+    if 'access_token' in login_session:
+        return jsonify({
+            'message':"user already logged in",
+            'access_token':login_session['access_token'],
+        })
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     login_session['state'] = state
-    print "Login Session " + login_session['state']
+    print "Login Session: " + login_session['state']
     return render_template('login.html', state=state)
 
 
@@ -52,9 +51,7 @@ def showLogin():
 def callback_handling():
     '''Callback Handler for Github OAuth'''
     if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state parameter!'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        return jsonify(error="invalid state")
 
     if 'code' in request.args:
         #return jsonify(code=request.args.get('code'))
